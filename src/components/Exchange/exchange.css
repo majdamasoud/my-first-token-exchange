@@ -1,0 +1,39 @@
+main{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 100px;
+    position: fixed; 
+}
+.exchange{
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+    position: relative;
+}
+
+.exchangeBox{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-style: solid;
+    width: 500px;
+    height: 260px;
+    position: relative;
+    border-radius: 40px;
+    background-color: rgb(255, 255, 255);
+}
+.exchanging{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 80%;
+    margin-top: 0px;
+}
+
+.boxLabel{
+    display: flex;
+    margin-left: 35px;
+    margin-top: 20px;
+    align-items: center;
+}

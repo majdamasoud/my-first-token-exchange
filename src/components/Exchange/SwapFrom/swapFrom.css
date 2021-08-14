@@ -1,0 +1,51 @@
+.swapFrom{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-left: 35px;
+    height: 30%;
+    
+}
+
+.tokenFrom{
+    display: flex;
+    width: 400px;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100%;
+    border-style: solid;
+    border-radius: 25px;
+}
+
+.tokenFromLabel{
+    display: flex;
+    justify-content: center;
+    margin-left: 25px;
+    margin-right: 25px;
+    border-style: solid;
+    border-radius: 10px;
+    height: 30px;
+    width: 60px;
+    align-items: center;
+}
+
+.tokenFromAmount {  
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 230px;
+    height: 100%;
+}
+
+.tokenFromAmount > input{
+    width: 100%;
+    height: 80%;
+    border: none;
+    text-align: end;
+}
+.switchTokenFrom{
+    display: flex;
+    justify-content: center;
+    margin-left: 20px;
+    margin-right: 20px;
+}
