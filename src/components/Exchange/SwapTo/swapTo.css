@@ -1,12 +1,20 @@
 .swapTo{
     display: flex;
     align-items: center;
-    height: 30%;
-    width: 365px;
-    margin-left: 35px;
-    margin-top: 15px;
+    height: 40%;
+    margin-left: 10px;
+    margin-right: 20px;
+    width: 430px;
     border-style: solid;
     border-radius: 25px;
+    border-width: thin;
+    border-color: rgb(230, 230, 230);
+    background-color: rgb(247, 248, 250);
+
+}
+
+.swapTo:hover {
+    border-color: rgb(190, 190, 190);
 }
 
 .tokenToLabel{
@@ -14,19 +22,20 @@
     justify-content: center;
     margin-left: 25px;
     margin-right: 25px;
-    border-style: solid;
     border-radius: 10px;
     height: 30px;
     width: 60px;
     align-items: center;
-
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
+    font-family: 'Inter var',sans-serif;
 }
 
 .tokenToAmount {  
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    width: 230px;
+    width: 300px;
     height: 100%;
 }
 
@@ -35,4 +44,6 @@
     height: 80%;
     border: none;
     text-align: end;
+    background-color: rgb(247, 248, 250);
+    font-size: 24px;
 }

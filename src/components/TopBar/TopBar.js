@@ -1,5 +1,6 @@
 import React from 'react';
 import './topBar.css';
+import ConnectWalletTop from './ConnectWallet/ConnectWalletTop';
 
 function TopBar() {
     return (
@@ -8,18 +9,8 @@ function TopBar() {
                 <div class="pageName">
                     <h1>My Token Exchange</h1>
                 </div>
-                <div class="exchangeNavigation">
-                    <ul>
-                        <li class="navigationLink">
-                            Exchange
-                        </li>
-                        <li class="navigationLink">
-                            Provide
-                        </li>
-                    </ul>
-                </div>
-                <div class="connectWalletButton">
-                    <button id="connectWallet">Connect Wallet</button>
+                <div class="connectButton">
+                    <ConnectWalletTop />
                 </div>
             </div>
         </header>

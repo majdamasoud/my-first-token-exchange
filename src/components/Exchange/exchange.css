@@ -15,25 +15,65 @@ main{
 .exchangeBox{
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    border-style: solid;
-    width: 500px;
-    height: 260px;
+    justify-content: flex-start ;
+    width: 450px;
+    height: 270px;
     position: relative;
-    border-radius: 40px;
+    border-radius: 25px;
     background-color: rgb(255, 255, 255);
+    box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
 }
 .exchanging{
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 80%;
+    height: 60%;
     margin-top: 0px;
 }
 
 .boxLabel{
     display: flex;
-    margin-left: 35px;
-    margin-top: 20px;
+    margin-left: 15px;
+    margin-top: 15px;
     align-items: center;
+}
+
+.switchTokenFrom{
+    display: flex;
+    justify-content: center;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    position: relative;
+    z-index: 1;
+}
+
+.switchTokenFrom{
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.switchTokenFrom > svg {
+    display: flex;
+    justify-content: center;
+    margin-top: -9px;
+    margin-bottom: -9px;
+    background-color: rgb(247, 248, 250);
+    border-color: rgb(255, 255, 255);
+    border-style: solid;
+    border-radius: 10px;
+}
+
+.switchTokenFrom > svg:hover {
+    background-color: rgb(223, 223, 223);
+
+}
+
+.connect{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    height: 19%;
+    text-align: center;
 }
