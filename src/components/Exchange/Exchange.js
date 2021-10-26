@@ -1,26 +1,27 @@
 import React from 'react';
-import SwapFrom from './SwapFrom/SwapFrom';
+import Swap from './Swap/Swap';
 import './exchange.css';
-import SwapTo from './SwapTo/SwapTo';
 import ConnectWallet from './ConnectWallet/ConnectWallet';
 
-function Exchange() {
+function Exchange({ connectWallet, swapFrom, swapTo, swapFromState, swapToState, toAmount, fromAmount, onClick}) {
     return (
         <main>
-            <div class="exchange">
-                <div class="exchangeBox">
-                    <div class="boxLabel">
-                        <text>Exchange</text>
+            <div className="exchange">
+                <div className="exchangeBox">
+                    <div className="boxLabel">
+                        <span>Exchange</span>
                     </div>
-                    <div class="exchanging">
-                        <SwapFrom />
-                        <div class="switchTokenFrom">
-                            <span class="iconify" data-icon="mdi:swap-vertical" data-height="20"></span>
+                    <div className="exchanging">
+                        <Swap symbol={swapFrom} amount={fromAmount} onChange={swapFromState}/>
+                        <div className="switchTokenFrom">
+                            <button onClick={onClick}>
+                                <span className="iconify" data-icon="mdi:swap-vertical" data-height="20"></span>
+                            </button>
                         </div>
-                        <SwapTo />
+                        <Swap symbol={swapTo} amount={toAmount} onChange={swapToState}/>
                     </div>
-                    <div class="connect">
-                        <ConnectWallet />
+                    <div className="connect">
+                        <ConnectWallet connectWallet={connectWallet}/>
                     </div>
                 </div>
             </div>

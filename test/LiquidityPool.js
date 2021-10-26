@@ -116,54 +116,62 @@ describe("LiquidityPool", () => {
   				expect(args.ethAmount.toString()).to.equal(ethProvided.toString());
   				expect(args.tokenProvided).to.equal(FirstToken.address);
   				expect(args.tokenAmount.toString()).to.equal(tokensProvided.toString());
+  				expect(args.newEthPool.toString()).to.equal(ethProvided.toString());
+  				expect(args.newTokenPool.toString()).to.equal(tokensProvided.toString());
   			});
 
   		});
   	});
 
-  	describe("Function: getFeesAccumulated", () => {
+  	describe("Function: getEthFeesAccumulated", () => {
 
   		it("Should fail if not the owner calling", async () => {
   			const error = "VM Exception while processing transaction: revert Caller must own the contract to view fees accumulated";
   			return expect(LiquidityPool.connect(exchanger1)
-  					.getFeesAcumulated())
+  					.getEthFeesAcumulated())
   					.to.eventually.be.rejectedWith(error);
   		});
   	});
 
+	describe("Function: getTokenFeesAccumulated", () => {
+
+		it("Should fail if not the owner calling", async () => {
+			const error = "VM Exception while processing transaction: revert Caller must own the contract to view fees accumulated";
+			return expect(LiquidityPool.connect(exchanger1)
+					.getTokenFeesAcumulated())
+					.to.eventually.be.rejectedWith(error);
+		});
+	});
+
   	describe("Function: ethToToken", () => {
-  		const ethProvided = toBigNumber(tokens(10));
-  		const tokensProvided = toBigNumber(tokens(1000));
-  		const ethTraded = toBigNumber(tokens(1));
-  		const invariant = ethProvided.mul(tokensProvided);
-  		const ownerTokenBalance  = toBigNumber(tokens(2000));
-
-  		const expectedNewEthPool = toBigNumber(tokens(11));
-  		const expectedNewFeesAccumulated = toBigNumber(tokens(0.1));
-  		const expectedNewTokenPool = invariant.div(expectedNewEthPool);
-
-  		const tokensReceived = tokensProvided.sub(expectedNewTokenPool);
-
-  		let result;
-
+		let ownerTokenBalance = tokens(1000);
+		let tokensProvided = tokens(900);
+		let ethProvided = tokens(9);
+		let ethTraded = tokens(10);
+		let expectedFees = tokens(1);
+		let expectedNewEthPool = tokens(19);
+		let expectedNewTokenPool = tokens(450);
+		let tokensReceived = tokens(450);
+		
+		
   		describe("Success", () => {
 
   			beforeEach(async () => {
-  				await FirstToken.transfer(owner.address, ownerTokenBalance.toString());
-  				await FirstToken.connect(owner).approve(LiquidityPool.address, tokensProvided.toString());
-  				await LiquidityPool.connect(owner).addLiquidity(FirstToken.address, tokensProvided.toString(), {from: owner.address, value: ethProvided.toString()});
-  				let tx = await LiquidityPool.connect(exchanger1).ethToToken({from: exchanger1.address, value: ethTraded.toString()});
+  				await FirstToken.transfer(owner.address, ownerTokenBalance);
+  				await FirstToken.connect(owner).approve(LiquidityPool.address, tokensProvided);
+  				await LiquidityPool.connect(owner).addLiquidity(FirstToken.address, tokensProvided, {from: owner.address, value: ethProvided});
+  				let tx = await LiquidityPool.connect(exchanger1).ethToToken({from: exchanger1.address, value: ethTraded});
   				result = await tx.wait();
   			});
 
   			it("Should update the ethPool, tokenPool, and feesAccumalted fields in contract", async () => {
   				let newEthPool = await LiquidityPool.ethPool();
   				let newTokenPool = await LiquidityPool.tokenPool();
-  				let newFeesAccumulated = await LiquidityPool.connect(owner).getFeesAcumulated();
+  				let newFeesAccumulated = await LiquidityPool.connect(owner).getEthFeesAcumulated();
 
   				expect(newEthPool.toString()).to.equal(expectedNewEthPool.toString());
   				expect(newTokenPool.toString()).to.equal(expectedNewTokenPool.toString());
-  				expect(newFeesAccumulated.toString()).to.equal(expectedNewFeesAccumulated.toString());
+  				expect(newFeesAccumulated.toString()).to.equal(expectedFees.toString());
   			});
 
   			it("Should emit Exchange event", async () => {
@@ -175,61 +183,44 @@ describe("LiquidityPool", () => {
   				expect(args.amountGet.toString()).to.equal(ethTraded.toString());
   				expect(args.tokenGive).to.equal(FirstToken.address);
   				expect(args.amountGive.toString()).to.equal(tokensReceived.toString());
-  				expect(args.feesPayed.toString()).to.equal(expectedNewFeesAccumulated.toString());
+  				expect(args.feesPayed.toString()).to.equal(expectedFees.toString());
+  				expect(args.newEthPool.toString()).to.equal(expectedNewEthPool.toString());
+  				expect(args.newTokenPool.toString()).to.equal(expectedNewTokenPool.toString());
   			});
 
   		});
-
-  		// describe("Failure", () => {
-
-  		// 	it("Should fail if trying to exchange for more tokens than in the pool", async () => {
-  		// 		await FirstToken.transfer(owner.address, ownerTokenBalance);
-  		// 		await FirstToken.connect(owner).approve(LiquidityPool.address, tokensProvided);
-  		// 		await LiquidityPool.connect(owner).addLiquidity(FirstToken.address, tokensProvided, {from: owner.address, value: ethProvided});
-  		// 		let ethTraded = tokens(90);
-  		// 		const error = "VM Exception while processing transaction: revert Not enough tokens in the pool";
-  		// 		return expect(LiquidityPool.connect(exchanger1)
-  		// 			.ethToToken({from: exchanger1.address, value: ethTraded}))
-  		// 			.to.eventually.be.rejectedWith(error);
-  		// 	});
-
-  		// });
   	});
 
   	describe("Function: tokenToEth", () => {
-  		const ethProvided = toBigNumber(tokens(10));
-  		const tokensProvided = toBigNumber(tokens(1000));
-  		const ownerTokenBalance  = toBigNumber(tokens(2000));
-  		const exchanger1TokenBalance = toBigNumber(tokens(250));
-  		const expectedNewTokenPool = tokensProvided.add(exchanger1TokenBalance);
-  		// (ethPool * tokenPool) / expectedNewTokenPool
-  		const expectedNewEthPool = toBigNumber(tokens(8));
-  		
-  		let ethToSend = ethProvided.sub(expectedNewEthPool);
-
-  		// multiple by fee percent
-  		const expectedNewFeesAccumulated = ethToSend.mul(toBigNumber(10)).div(toBigNumber(100));
-  		ethToSend = ethToSend.sub(expectedNewFeesAccumulated);
+		let ownerTokenBalance = tokens(1000);
+		let tokensProvided = tokens(900);
+		let ethProvided = tokens(9);
+		let tokensTraded = tokens(1000);
+		let expectedFees = tokens(100);
+		let expectedNewEthPool = tokens(4.5);
+		let expectedNewTokenPool = tokens(1900);
+		let ethReceived = tokens(4.5);
 
   		describe("Success", () => {
 
   			beforeEach(async () => {
-  				await FirstToken.transfer(owner.address, ownerTokenBalance.toString());
-  				await FirstToken.transfer(exchanger1.address, exchanger1TokenBalance.toString());
-  				await FirstToken.connect(owner).approve(LiquidityPool.address, tokensProvided.toString());
-  				await FirstToken.connect(exchanger1).approve(LiquidityPool.address, exchanger1TokenBalance.toString());
-  				await LiquidityPool.connect(owner).addLiquidity(FirstToken.address, tokensProvided.toString(), {from: owner.address, value: ethProvided.toString()});
-  				let tx = await LiquidityPool.connect(exchanger1).tokenToEth(exchanger1TokenBalance.toString());
+  				await FirstToken.transfer(owner.address, ownerTokenBalance);
+  				await FirstToken.transfer(exchanger1.address, tokensTraded);
+  				await FirstToken.connect(owner).approve(LiquidityPool.address, tokensProvided);
+  				await FirstToken.connect(exchanger1).approve(LiquidityPool.address, tokensTraded);
+  				await LiquidityPool.connect(owner).addLiquidity(FirstToken.address, tokensProvided, {from: owner.address, value: ethProvided});
+  				let tx = await LiquidityPool.connect(exchanger1).tokenToEth(tokensTraded.toString());
   				result = await tx.wait();
   			});
 
   			it("Should update the ethPool, tokenPool, and feesAccumalted fields in contract", async () => {
   				let newEthPool = await LiquidityPool.ethPool();
   				let newTokenPool = await LiquidityPool.tokenPool();
-  				let newFeesAccumulated = await LiquidityPool.connect(owner).getFeesAcumulated();
+  				let newFeesAccumulated = await LiquidityPool.connect(owner).getTokenFeesAcumulated();
+				
   				expect(newEthPool.toString()).to.equal(expectedNewEthPool.toString());
   				expect(newTokenPool.toString()).to.equal(expectedNewTokenPool.toString());
-  				expect(newFeesAccumulated.toString()).to.equal(expectedNewFeesAccumulated.toString());
+  				expect(newFeesAccumulated.toString()).to.equal(expectedFees.toString());
   			});
 
   			it("Should emit Exchange event", async () => {
@@ -238,64 +229,66 @@ describe("LiquidityPool", () => {
   				const args = event.args;
   				expect(args.exchanger).to.equal(exchanger1.address);
   				expect(args.tokenGet).to.equal(FirstToken.address);
-  				expect(args.amountGet.toString()).to.equal(exchanger1TokenBalance.toString());
+  				expect(args.amountGet.toString()).to.equal(tokensTraded.toString());
   				expect(args.tokenGive).to.equal(ETHER_ADDRESS);
-  				expect(args.amountGive.toString()).to.equal(ethToSend.toString());
-  				expect(args.feesPayed.toString()).to.equal(expectedNewFeesAccumulated.toString());
+  				expect(args.amountGive.toString()).to.equal(ethReceived.toString());
+  				expect(args.feesPayed.toString()).to.equal(expectedFees.toString());
+  				expect(args.newEthPool.toString()).to.equal(expectedNewEthPool.toString());
+  				expect(args.newTokenPool.toString()).to.equal(expectedNewTokenPool.toString());
   			});
 
   		});
   	});
 
-  	describe("Function: withdrawFees", () => {
-  		const ethProvided = toBigNumber(tokens(10));
-  		const tokensProvided = toBigNumber(tokens(1000));
-  		const ownerTokenBalance  = toBigNumber(tokens(2000));
-  		const exchanger1TokenBalance = toBigNumber(tokens(250));
+  	// describe("Function: withdrawFees", () => {
+  	// 	const ethProvided = tokens(9)
+  	// 	const tokensProvided = tokens(900);
+  	// 	const ownerTokenBalance  = tokens(1000);
+  	// 	const exchanger1TokenBalance = tokens(1000);
 
-  		beforeEach(async () => {
-  				await FirstToken.transfer(owner.address, ownerTokenBalance.toString());
-  				await FirstToken.transfer(exchanger1.address, exchanger1TokenBalance.toString());
-  				await FirstToken.connect(owner).approve(LiquidityPool.address, tokensProvided.toString());
-  				await FirstToken.connect(exchanger1).approve(LiquidityPool.address, exchanger1TokenBalance.toString());
-  				await LiquidityPool.connect(owner).addLiquidity(FirstToken.address, tokensProvided.toString(), {from: owner.address, value: ethProvided.toString()});
-  				await LiquidityPool.connect(exchanger1).tokenToEth(exchanger1TokenBalance.toString());
-  			});
+  	// 	beforeEach(async () => {
+  	// 			await FirstToken.transfer(owner.address, ownerTokenBalance.toString());
+  	// 			await FirstToken.transfer(exchanger1.address, exchanger1TokenBalance.toString());
+  	// 			await FirstToken.connect(owner).approve(LiquidityPool.address, tokensProvided.toString());
+  	// 			await FirstToken.connect(exchanger1).approve(LiquidityPool.address, exchanger1TokenBalance.toString());
+  	// 			await LiquidityPool.connect(owner).addLiquidity(FirstToken.address, tokensProvided.toString(), {from: owner.address, value: ethProvided.toString()});
+  	// 			await LiquidityPool.connect(exchanger1).tokenToEth(exchanger1TokenBalance.toString());
+  	// 		});
 
-  		describe("Failure", () => {
+  	// 	describe("Failure", () => {
 
-  			const feesToWithdraw = toBigNumber(tokens(2)).mul(toBigNumber(11)).div(toBigNumber(100));
+  	// 		const feesToWithdraw = toBigNumber(tokens(2)).mul(toBigNumber(11)).div(toBigNumber(100));
 
-  			it("Should fail if caller is not owner", async () => {
-  				const error = "VM Exception while processing transaction: revert Caller must own the contract to withdraw fees";
-  				return expect(LiquidityPool.connect(exchanger1)
-  					.withdrawFees(feesToWithdraw.toString()))
-  					.to.eventually.be.rejectedWith(error);
-  			});
+  	// 		it("Should fail if caller is not owner", async () => {
+  	// 			const error = "VM Exception while processing transaction: revert Caller must own the contract to withdraw fees";
+  	// 			return expect(LiquidityPool.connect(exchanger1)
+  	// 				.withdrawFees(feesToWithdraw.toString()))
+  	// 				.to.eventually.be.rejectedWith(error);
+  	// 		});
 
-  			it("Should fail if amount requested is less than fees accumulated", async () => {
-  				const error = "VM Exception while processing transaction: revert Withdraw request is greater than fees accumulated";
-  				return expect(LiquidityPool.connect(owner)
-  					.withdrawFees(feesToWithdraw.toString()))
-  					.to.eventually.be.rejectedWith(error);
-  			});
-  		})
+  	// 		it("Should fail if amount requested is less than fees accumulated", async () => {
+  	// 			const error = "VM Exception while processing transaction: revert Withdraw request is greater than fees accumulated";
+  	// 			return expect(LiquidityPool.connect(owner)
+  	// 				.withdrawFees(feesToWithdraw.toString()))
+  	// 				.to.eventually.be.rejectedWith(error);
+  	// 		});
+  	// 	})
 
-  		describe("Success", () => {
-  			const feesToWithdraw = toBigNumber(tokens(2)).mul(toBigNumber(10)).div(toBigNumber(100));
+  	// 	describe("Success", () => {
+  	// 		const feesToWithdraw = toBigNumber(tokens(2)).mul(toBigNumber(10)).div(toBigNumber(100));
 
-  			it("Should successfully withdraw fees by owner", async () => {
-  				await LiquidityPool.connect(owner).withdrawFees(feesToWithdraw.toString());
-  				const expectedNewFeesAccumulated = tokens(0);
-  				const expectedNewEthPool = tokens(7.8);
-  				const newFeesAccumulated = await LiquidityPool.connect(owner).getFeesAcumulated();
-  				const newEthPool = await LiquidityPool.ethPool();
-  				expect(newFeesAccumulated.toString()).to.equal(expectedNewFeesAccumulated.toString());
-  				expect(newEthPool.toString()).to.equal(expectedNewEthPool.toString());
-  			});
+  	// 		it("Should successfully withdraw fees by owner", async () => {
+  	// 			await LiquidityPool.connect(owner).withdrawFees(feesToWithdraw.toString());
+  	// 			const expectedNewFeesAccumulated = tokens(0);
+  	// 			const expectedNewEthPool = tokens(7.8);
+  	// 			const newFeesAccumulated = await LiquidityPool.connect(owner).getFeesAcumulated();
+  	// 			const newEthPool = await LiquidityPool.ethPool();
+  	// 			expect(newFeesAccumulated.toString()).to.equal(expectedNewFeesAccumulated.toString());
+  	// 			expect(newEthPool.toString()).to.equal(expectedNewEthPool.toString());
+  	// 		});
 
-  		});
-  	});
+  	// 	});
+  	// });
 
 
 });

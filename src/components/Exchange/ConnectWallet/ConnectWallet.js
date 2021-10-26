@@ -1,10 +1,10 @@
 import React from 'react'
 import './connectWallet.css'
 
-function ConnectWallet() {
+function ConnectWallet({ connectWallet }) {
     return (
-        <div class="connectWalletExchange">
-            <button id="connectWalletButtonExchange">Connect Wallet</button>
+        <div className="connectWalletExchange">
+            <button onClick={connectWallet} id="connectWalletButtonExchange">Connect Wallet</button>
         </div>
     )
 }

@@ -1,10 +1,10 @@
 import React from 'react';
 import './connectWalletTop.css';
 
-function ConnectWalletTop() {
+function ConnectWalletTop({connectWallet}) {
     return (
-        <div class="connectWalletTop">
-            <button id="connectWalletTopButton">Connect Wallet</button>
+        <div className="connectWalletTop">
+            <button onClick={connectWallet} id="connectWalletTopButton">Connect Wallet</button>
         </div>
     )
 }

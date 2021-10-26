@@ -2,16 +2,20 @@ import React from 'react';
 import './topBar.css';
 import ConnectWalletTop from './ConnectWallet/ConnectWalletTop';
 
-function TopBar() {
+function TopBar({connectWallet, signerData}) {
+
     return (
         <header>
-            <div class="top">
-                <div class="pageName">
+            <div className="top">
+                <div className="pageName">
                     <h1>My Token Exchange</h1>
                 </div>
-                <div class="connectButton">
-                    <ConnectWalletTop />
-                </div>
+                {
+                    signerData.connected ? <span>{signerData.address}</span>:
+                    <div className="connectButton">
+                        <ConnectWalletTop connectWallet={connectWallet}/>
+                    </div>
+                }      
             </div>
         </header>
         

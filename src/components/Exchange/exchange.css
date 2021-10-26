@@ -53,15 +53,21 @@ main{
     cursor: pointer;
 }
 
-.switchTokenFrom > svg {
+.switchTokenFrom > button{
     display: flex;
     justify-content: center;
+    cursor: pointer;
     margin-top: -9px;
     margin-bottom: -9px;
     background-color: rgb(247, 248, 250);
     border-color: rgb(255, 255, 255);
     border-style: solid;
     border-radius: 10px;
+}
+
+.switchTokenFrom > svg {
+    display: flex;
+    justify-content: center;
 }
 
 .switchTokenFrom > svg:hover {
