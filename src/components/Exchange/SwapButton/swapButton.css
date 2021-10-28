@@ -1,0 +1,26 @@
+.SwapButton{
+    display: flex;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+}
+
+#swapButtonExchange{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    width: 430px;
+    height: 100%;
+    border-radius: 18px;
+    border: none;
+    background-color: rgb(125, 203, 255);
+    text-align: center;
+    color: rgb(0, 45, 75);
+    font-size: 16px;
+    font-weight: 550;
+}
+
+#swapButtonExchange:hover{
+    background-color: rgb(112, 184, 231);
+}

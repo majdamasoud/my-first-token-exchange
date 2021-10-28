@@ -5,10 +5,10 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import LiquidityPool from './artifacts/contracts/LiquidityPool.sol/LiquidityPool.json';
 import FirstToken from './artifacts/contracts/FirstToken.sol/FirstToken.json';
-import {toEther, getOutputString, getInputString} from './helpers'; 
+import {toEther, tokens, getOutputString, getInputString} from './helpers'; 
 
-const tokenAddress = "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf";
-const liquidityPoolAddress = "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF";
+const tokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const liquidityPoolAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 
 function App() {
   // getting instances of contracts and signer
@@ -20,6 +20,48 @@ function App() {
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
   const [poolData, setPoolData] = useState({});
+
+  function handleSwapButtonClick() {
+    console.log("EthBalance: ", signerData.ethBalance)
+    console.log("from amount: ", parseFloat(fromAmount) < signerData.ethBalance);
+    console.log(poolData)
+    if (fromAmount === '') {
+      window.alert('Please Enter Amount');
+    } else if (swapFrom === 'ETH' && parseFloat(fromAmount) > signerData.ethBalance){
+      window.alert('Insufficient ETH Balance');
+    } else if (swapFrom === 'FIRST' && parseFloat(fromAmount) > signerData.tokenBalance){
+      window.alert('Insufficient ETH Balance');
+    } else if (swapTo === 'ETH' && parseFloat(toAmount) > poolData.ethPool){
+      window.alert('Insufficient ETH Pool');
+    } else if (swapTo === 'FIRST' && parseFloat(toAmount) > poolData.tokenPool){
+      window.alert('Insufficient FIRST Pool');
+    } else {
+      if (swapFrom === 'ETH') {
+        ethToTokenSwap();
+      } else {
+        tokenToEthSwap();
+      }
+    }
+  }
+
+  async function tokenToEthSwap() {
+    tokenContract.contract.approve(liquidityPoolAddress, tokens(fromAmount));
+    liquidityPoolContract.contract.tokenToEth(tokens(fromAmount));
+    let data = await getSignerDataAndContracts();
+    setTokenContract({type: data.type, contract: data.tokenContract});
+    setLiquidityPoolContract({type: data.type, contract: data.lpContract});
+    setSignerData({connected: true, address: data.address, ethBalance: data.ethBalance, tokenBalance: data.tokenBalance});
+  }
+
+  async function ethToTokenSwap() {
+    liquidityPoolContract.contract.ethToToken({from: signerData.address, value: tokens(fromAmount)});
+    let data = await getSignerDataAndContracts();
+    setTokenContract({type: data.type, contract: data.tokenContract});
+    setLiquidityPoolContract({type: data.type, contract: data.lpContract});
+    setSignerData({connected: true, address: data.address, ethBalance: data.ethBalance, tokenBalance: data.tokenBalance});
+  }
+
+
 
   const rx_live = /^[+-]?\d*(?:[.,]\d*)?$/;
 
@@ -59,13 +101,17 @@ function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const address = await signer.getAddress();
-    const balance = await signer.getBalance();
+    const ethBalance = await signer.getBalance();
     const signerTokenContract = new ethers.Contract(tokenAddress, FirstToken.abi, signer);
     const signerLPContract = new ethers.Contract(liquidityPoolAddress, LiquidityPool.abi, signer);
+    const getTokenBalance = await signerTokenContract.balanceOf(address);
+    const tokenBalance = getTokenBalance ? getTokenBalance : tokens('0');
+
     return {
       type: 'signer',
       address,
-      balance,
+      ethBalance: toEther(ethBalance.toString()),
+      tokenBalance: toEther(tokenBalance.toString()),
       tokenContract: signerTokenContract,
       lpContract: signerLPContract
     }
@@ -75,7 +121,8 @@ function App() {
     await window.ethereum.request({ method: 'eth_requestAccounts' });
     let data = await getSignerDataAndContracts();
     setTokenContract({type: data.type, contract: data.tokenContract});
-    setSignerData({connected: true, address: data.address, balance: data.balance})
+    setLiquidityPoolContract({type: data.type, contract: data.lpContract});
+    setSignerData({connected: true, address: data.address, ethBalance: data.ethBalance, tokenBalance: data.tokenBalance});
   }
 
   useEffect(() => {
@@ -101,7 +148,7 @@ function App() {
         setTokenContract({type: data.type, contract: data.tokenContract});
         setLiquidityPoolContract({type: data.type, contract: data.lpContract});
         if (data.type === 'signer') {
-          setSignerData({connected: true, address: data.address, balance: data.balance})
+          setSignerData({connected: true, address: data.address, ethBalance: data.ethBalance, tokenBalance: data.tokenBalance})
         }
       })
   }, []);
@@ -126,8 +173,8 @@ function App() {
   return (
     <div className="App">
       <TopBar connectWallet={connectWallet} signerData={signerData}/>
-      <Exchange connectWallet={connectWallet} swapFrom={swapFrom} swapTo={swapTo}
-      swapFromState={swapFromState} swapToState={swapToState} toAmount={toAmount} fromAmount={fromAmount} onClick={switchTokenFrom}/>
+      <Exchange connectWallet={connectWallet} signerData={signerData} swapFrom={swapFrom} swapTo={swapTo} swapOnClick={handleSwapButtonClick}
+      swapFromState={swapFromState} swapToState={swapToState} toAmount={toAmount} fromAmount={fromAmount} switchOnClick={switchTokenFrom}/>
     </div>
   );
 }
