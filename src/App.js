@@ -45,8 +45,8 @@ function App() {
   }
 
   async function tokenToEthSwap() {
-    tokenContract.contract.approve(liquidityPoolAddress, tokens(fromAmount));
-    liquidityPoolContract.contract.tokenToEth(tokens(fromAmount));
+    await tokenContract.contract.approve(liquidityPoolAddress, tokens(fromAmount))
+    await liquidityPoolContract.contract.tokenToEth(tokens(fromAmount));
     let data = await getSignerDataAndContracts();
     setTokenContract({type: data.type, contract: data.tokenContract});
     setLiquidityPoolContract({type: data.type, contract: data.lpContract});
@@ -54,7 +54,7 @@ function App() {
   }
 
   async function ethToTokenSwap() {
-    liquidityPoolContract.contract.ethToToken({from: signerData.address, value: tokens(fromAmount)});
+    await liquidityPoolContract.contract.ethToToken({from: signerData.address, value: tokens(fromAmount)});
     let data = await getSignerDataAndContracts();
     setTokenContract({type: data.type, contract: data.tokenContract});
     setLiquidityPoolContract({type: data.type, contract: data.lpContract});
@@ -151,6 +151,9 @@ function App() {
           setSignerData({connected: true, address: data.address, ethBalance: data.ethBalance, tokenBalance: data.tokenBalance})
         }
       })
+      .catch(error => {
+        console.log(error);
+      })
   }, []);
 
   useEffect(() => {
@@ -171,10 +174,11 @@ function App() {
   }, [liquidityPoolContract])
 
   return (
+    
     <div className="App">
-      <TopBar connectWallet={connectWallet} signerData={signerData}/>
-      <Exchange connectWallet={connectWallet} signerData={signerData} swapFrom={swapFrom} swapTo={swapTo} swapOnClick={handleSwapButtonClick}
-      swapFromState={swapFromState} swapToState={swapToState} toAmount={toAmount} fromAmount={fromAmount} switchOnClick={switchTokenFrom}/>
+        <TopBar connectWallet={connectWallet} signerData={signerData}/>
+        <Exchange connectWallet={connectWallet} signerData={signerData} swapFrom={swapFrom} swapTo={swapTo} swapOnClick={handleSwapButtonClick}
+        swapFromState={swapFromState} swapToState={swapToState} toAmount={toAmount} fromAmount={fromAmount} switchOnClick={switchTokenFrom}/> 
     </div>
   );
 }
