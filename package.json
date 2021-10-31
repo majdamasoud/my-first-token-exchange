@@ -1,6 +1,9 @@
 {
   "name": "my-token-exchange",
   "version": "0.1.0",
+  "engines": {
+    "node": "14.x"
+  },
   "private": true,
   "dependencies": {
     "@openzeppelin/contracts": "^4.0.0",
