@@ -1,15 +1,15 @@
-const web3 = require('web3');
+const ethers = require('ethers');
  
 const tokens = (n) => {
-	return web3.utils.toWei(n.toString(), 'ether');
+	return ethers.utils.parseEther(n.toString());
 }
 
 const toBigNumber = (n) => {
-	return web3.utils.toBN(n.toString());
+	return ethers.BigNumber.from(n.toString());
 }
 
 const toEther = (n) => {
-	return web3.utils.fromWei(n.toString());
+	return ethers.utils.formatEther(toBigNumber(n));
 }
 
 const ETHER_ADDRESS = '0x0000000000000000000000000000000000000000';

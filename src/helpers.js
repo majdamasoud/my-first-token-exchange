@@ -1,15 +1,15 @@
-const web3 = require('web3');
+const ethers = require('ethers');
  
 const tokens = (n) => {
-	return web3.utils.toWei(n, 'ether');
+	return ethers.utils.parseEther(n);
 }
 
 const toBigNumber = (n) => {
-	return web3.utils.toBN(n.toString());
+	return ethers.BigNumber.from(n.toString());
 }
 
 const toEther = (n) => {
-	return web3.utils.fromWei(n);
+	return ethers.utils.formatEther(toBigNumber(n));
 }
 
 const nineHundredBN = toBigNumber(900);
