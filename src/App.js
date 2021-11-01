@@ -11,6 +11,8 @@ const tokenAddress = "0xF25e285b6C18a29956870a389D94A040856Fc7c0";
 const liquidityPoolAddress = "0xA8e39c84C9665478F3e4AB09048a32724e3C7e82";
 
 
+
+
 function App() {
   // getting instances of contracts and signer
   const [liquidityPoolContract, setLiquidityPoolContract] = useState({});
@@ -172,7 +174,20 @@ function App() {
       .catch(error => {
         console.log(error);
       });
-  }, [liquidityPoolContract])
+  }, [liquidityPoolContract]);
+
+  useEffect(() => {
+    if(window.ethereum) {
+      window.ethereum.on('chainChanged', () => {
+        window.location.reload();
+      })
+      window.ethereum.on('accountsChanged', () => {
+        window.location.reload();
+      })
+    }
+  }, [])
+
+  
 
   return (
     <div className="App">
